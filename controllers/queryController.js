@@ -7,19 +7,21 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const query = async (req, res) => {
-  let question = req.body.question;
-  console.log(question);
+  let topic = req.body.topic;
+  console.log(topic);
+
   try {
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: question,
-      //   max_tokens: 8,
+      prompt: `In under 255 characters, generate a trivia question and an answer about the topic ${topic} and format them in the following way: {"q": <question>, "a": <answer>} `,
+      max_tokens: 30,
       //   temperature: 0,
     });
-    console.log(response);
+    console.log(response.data.choices[0].text);
+    let scrubbedStr = response.data.choices[0].text.replace(/\n/g, "");
     res.status(200).json({
       message: "Query Successful",
-      response: response.data,
+      response: scrubbedStr,
     });
   } catch (err) {
     console.log(err),
