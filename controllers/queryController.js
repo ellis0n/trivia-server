@@ -12,7 +12,7 @@ const query = async (req, res) => {
   try {
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `"Generate a very difficult trivia question about ${topic} and provide the answer along with two incorrect answers in the following format: {"q": <question>, "a": <answer>, "w1": <wrong-answer1>, "w2": <wrong-answer2>}." `,
+      prompt: `Generate a very difficult trivia question about ${topic} and provide the answer along with two incorrect answers in the following format: {"q": <question>, "a": <answer>, "w1": <wrong-answer1>, "w2": <wrong-answer2>}. `,
       max_tokens: 75,
       //   temperature: 0,
     });
