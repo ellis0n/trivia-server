@@ -12,8 +12,8 @@ const query = async (req, res) => {
   try {
     const response = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: `In under 255 characters, generate a trivia question and an answer about the topic ${topic} and format them in the following way: {"q": <question>, "a": <answer>} `,
-      max_tokens: 30,
+      prompt: `"Generate a very difficult trivia question about ${topic} and provide the answer along with two incorrect answers in the following format: {"q": <question>, "a": <answer>, "w1": <wrong-answer1>, "w2": <wrong-answer2>}." `,
+      max_tokens: 75,
       //   temperature: 0,
     });
     console.log(response.data.choices[0].text);
