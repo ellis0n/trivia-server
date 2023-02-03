@@ -8,7 +8,10 @@ const corsOptions = require('./config/corsOptions')
 const allowedOrigins = require('./config/allowedOrigins')
 const cookieParser = require('cookie-parser')
 const openai = require('openai')
+const mongoose = require('mongoose')
+const connectDB = require('./config/dbConnection')
 
+connectDB()
 app.use(cors(corsOptions))
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: false }))
@@ -30,4 +33,7 @@ app.all('*', (req, res) => {
     }
 })
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+mongoose.connection.once('open', () => {
+    console.log('Connected to MongoDB.')
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+})
