@@ -5,29 +5,36 @@ const configuration = new Configuration({
 })
 const openai = new OpenAIApi(configuration)
 const Question = require('../model/Question')
+const Prompt = require('../model/Prompt')
 
 const query = async (req, res) => {
     let topic = req.body.topic
     console.log(topic)
 
-    // Break this out into a collection of prompts to be referenced by the user
-    const prompt = `Generate a concise but challenging trivia question about "${topic}". Provide the answer along with three incorrect but plausible answers in the following format: {"q": value, "a": value, "w1": value, "w2": value, "w3": value}. `
+    // Break this out into a collection of prompts to be referenced by key name
+    const prompt = {
+        name: 'prompt-1',
+        prompt: `Generate a concise but challenging trivia question about "${topic}". Provide the answer along with three incorrect but plausible answers in the following format: {"q": value, "a": value, "w1": value, "w2": value, "w3": value}. `,
+    }
 
     try {
         const queryAI = await openai.createCompletion({
             model: 'text-davinci-003',
-            prompt: prompt,
+            prompt: prompt.prompt,
             max_tokens: 75,
             //   temperature: 0,
         })
         const answer = queryAI.data.choices[0].text
         console.log(answer)
         let scrubbedStr = answer.replace(/\n/g, '')
+        // console.log(scrubbedStr)
 
-        // await Question.create({
-        //     prompt: prompt,
-        //     answer: answer,
-        // })
+        const saveQuestion = await Question.create({
+            prompt: prompt.name,
+            topic: topic,
+            answer: answer,
+        })
+
         res.status(200).json({
             message: 'Query Successful',
             response: scrubbedStr,
