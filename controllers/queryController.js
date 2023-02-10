@@ -7,20 +7,25 @@ const openai = new OpenAIApi(configuration)
 const Question = require('../model/Question')
 const Prompt = require('../model/Prompt')
 
+const reqFormatter = (inputStr) => {
+    const convertedInputStr = inputStr.replace(/\n/g, '').replace(/['"']/g, '').split(' -- ')
+    return convertedInputStr
+}
+
 const query = async (req, res) => {
     let { topic, check } = req.body.data
-    console.log(topic)
-    console.log(check)
+    // console.log(topic)
+    // console.log(check)
 
     // Break this out into a collection of prompts to be referenced by key name
     const prompt = [
         {
             name: 'prompt-1',
-            prompt: `Generate a concise but challenging trivia question about "${topic}". Provide the answer along with three incorrect but plausible answers in the following format: {"q": value, "a": value, "w1": value, "w2": value, "w3": value}. `,
+            prompt: `Generate a concise but challenging trivia question about "${topic}". Provide the answer along with three incorrect but plausible answers in the following format precisely: question -- correctAnswer -- wrongAnwser -- wrongAnwser -- wrongAnwser`,
         },
         {
             name: 'prompt-2',
-            prompt: `Generate a concise but challenging trivia question on a new topic related to "${topic}". Provide the answer along with three incorrect but plausible answers in the following format: {"q": value, "a": value, "w1": value, "w2": value, "w3": value}. `,
+            prompt: `Generate a concise but challenging trivia question on a new topic related to "${topic}". Provide the answer along with three incorrect but plausible answers in the following format:  question -- correctAnswer -- wrongAnwser -- wrongAnwser -- wrongAnwser`,
         },
     ]
 
@@ -35,16 +40,16 @@ const query = async (req, res) => {
         const queryAI = await openai.createCompletion({
             model: 'text-davinci-003',
             prompt: promptCategory.prompt,
-            max_tokens: 75,
+            max_tokens: 100,
             //   temperature: 0,
         })
-        const answer = queryAI.data.choices[0].text.replace(/\n/g, '')
-        console.log(answer)
 
+        const answer = reqFormatter(queryAI.data.choices[0].text)
+        console.log(queryAI.data.choices[0].text)
         const saveQuestion = await Question.create({
             prompt: promptCategory.name,
             topic: topic,
-            answer: answer,
+            answer: answer.toString(),
         })
 
         res.status(200).json({
